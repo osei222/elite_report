@@ -101,7 +101,8 @@ def student_entry(student_index):
         else:
             return redirect(url_for('preview_reports'))
 
-    return render_template('student_entry.html', student_index=student_index, subjects=subjects)
+    return render_template('student_details.html', student_index=student_index, subjects=subjects,
+                           total_students=num_students)
 
 
 @app.route('/preview')
@@ -112,40 +113,6 @@ def preview_reports():
     session['students'] = students
     session.modified = True
     return render_template('preview.html', students=students)
-
-
-@app.route('/generate_pdf')
-def generate_pdf():
-    buffer = BytesIO()
-    pdf = SimpleDocTemplate(buffer, pagesize=A4)
-    elements = []
-    styles = getSampleStyleSheet()
-
-    elements.append(Paragraph(f"<b>{session['school_name'].upper()}</b>", styles['Title']))
-    elements.append(Paragraph(f"Location: {session['location']}", styles['Normal']))
-    elements.append(Paragraph(f"Grade: {session['grade']} | Semester: {session['semester']}", styles['Normal']))
-    elements.append(Spacer(1, 20))
-
-    table_data = [["Position", "Pupil Name", "Total Aggregate"]]
-    for student in session['students']:
-        table_data.append([student['position'], student['name'], student['total_aggregate']])
-
-    table = Table(table_data, colWidths=[80, 200, 100])
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-    ]))
-
-    elements.append(table)
-    pdf.build(elements)
-    buffer.seek(0)
-
-    return send_file(buffer, as_attachment=True, download_name="student_report.pdf", mimetype='application/pdf')
 
 
 if __name__ == '__main__':
