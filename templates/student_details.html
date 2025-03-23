@@ -33,15 +33,24 @@
                     <label class="form-label">{{ subject }}</label>
                     <input type="hidden" name="subject[]" value="{{ subject }}">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <input type="number" name="class_score[]" class="form-control score-input" placeholder="Class Score (0-50)" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <input type="number" name="exam_score[]" class="form-control score-input" placeholder="Exam Score (0-50)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="remark[]" class="form-control" placeholder="Subject Remark" required>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
+            </div>
+
+            <!-- General Teacher's Remarks -->
+            <div class="mb-3">
+                <label class="form-label">Teacher's Remarks</label>
+                <textarea name="teacher_remarks" class="form-control" rows="3" placeholder="Enter general remarks for the student..."></textarea>
             </div>
 
             <div class="d-flex justify-content-between mt-4">

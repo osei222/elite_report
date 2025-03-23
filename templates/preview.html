@@ -17,7 +17,9 @@
                 <th>Position</th>
                 <th>Pupil Name</th>
                 <th>Total Aggregate</th>
+                <th>Teacher's Remarks</th>
                 <th>View Report</th>
+                <th>Download Report</th>
             </tr>
         </thead>
         <tbody>
@@ -26,8 +28,12 @@
                 <td>{{ student.position }}</td>
                 <td>{{ student.name }}</td>
                 <td>{{ student.total_aggregate }}</td>
+                <td>{{ student.teacher_remarks }}</td>
                 <td>
                     <a href="/preview_individual/{{ loop.index0 }}" class="btn btn-info btn-sm">Preview</a>
+                </td>
+                <td>
+                    <a href="/generate_pdf/{{ loop.index0 }}" class="btn btn-success btn-sm">Download PDF</a>
                 </td>
             </tr>
             {% endfor %}
@@ -35,7 +41,7 @@
     </table>
 
     <div class="text-center mt-4">
-        <a href="/generate_pdf" class="btn btn-success">Download Full Report</a>
+        <a href="/generate_all_reports" class="btn btn-primary">Download All Reports</a>
     </div>
 </div>
 

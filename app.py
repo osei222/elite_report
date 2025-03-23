@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for, send_file
+from flask import Flask, render_template, request, session, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -22,12 +22,19 @@ db = SQLAlchemy(app)
 
 
 # Define Database Models
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
+
+
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     grade = db.Column(db.String(50), nullable=False)
     semester = db.Column(db.String(50), nullable=False)
     total_aggregate = db.Column(db.Float, nullable=False)
+    remarks = db.Column(db.String(255), nullable=True)
 
 
 class Score(db.Model):
@@ -37,82 +44,94 @@ class Score(db.Model):
     class_score = db.Column(db.Float, nullable=False)
     exam_score = db.Column(db.Float, nullable=False)
     total_score = db.Column(db.Float, nullable=False)
-    remark = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(2), nullable=False)
+    remark = db.Column(db.String(100), nullable=True)
 
 
-# Create tables if they don't exist
-with app.app_context():
-    db.create_all()
-
-# Predefined subjects per grade
-grade_subjects = {
-    "Grade 1-6": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art",
-                  "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-    "Grade 7-9": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art",
-                  "Social Studies", "Computing", "Career Technology", "Religious and Moral Education", "Dictation"]
-}
-
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        session['school_name'] = request.form['school_name']
-        session['location'] = request.form['location']
-        session['grade'] = request.form['grade']
-        session['semester'] = request.form['semester']
-        session['num_students'] = int(request.form['num_students'])
-        session['students'] = []  # Initialize an empty list for student data
-        return redirect(url_for('student_entry', student_index=0))
-    return render_template('index.html')
+# Function to generate letter grades
+def calculate_grade(score):
+    if score >= 80:
+        return "A"
+    elif score >= 70:
+        return "B"
+    elif score >= 60:
+        return "C"
+    elif score >= 50:
+        return "D"
+    else:
+        return "E"
 
 
-@app.route('/student/<int:student_index>', methods=['GET', 'POST'])
-def student_entry(student_index):
-    num_students = session.get('num_students', 0)
-    grade = session.get('grade', 'Grade 1-6')
-    subjects = grade_subjects.get(grade, [])
+@app.route('/generate_pdf/<int:student_index>')
+def generate_pdf(student_index):
+    if 'teacher_id' not in session:
+        return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        name = request.form['name']
-        class_scores = request.form.getlist('class_score[]')
-        exam_scores = request.form.getlist('exam_score[]')
+    students = session.get('students', [])
+    if student_index >= len(students):
+        return "Student not found", 404
 
-        total_aggregate = sum(
-            (float(class_scores[i]) * 0.5) + (float(exam_scores[i]) * 0.5) for i in range(len(subjects)))
+    student = students[student_index]
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    styles = getSampleStyleSheet()
 
-        student_data = {
-            'name': name,
-            'total_aggregate': total_aggregate,
-            'scores': [{
-                'subject': subjects[i],
-                'class_score': float(class_scores[i]),
-                'exam_score': float(exam_scores[i]),
-                'total_score': (float(class_scores[i]) * 0.5) + (float(exam_scores[i]) * 0.5)
-            } for i in range(len(subjects))]
-        }
+    # School Details
+    elements.append(Paragraph(f"<b>Great Hope School</b>", styles["Title"]))
+    elements.append(Paragraph("Location: Adwumam", styles["Normal"]))
+    elements.append(Paragraph("Address: 123 Learning St, Ghana", styles["Normal"]))
+    elements.append(Spacer(1, 12))
 
-        if 'students' not in session:
-            session['students'] = []
-        session['students'].append(student_data)
-        session.modified = True
+    # Student Details
+    elements.append(Paragraph(f"<b>Student Name:</b> {student['name']}", styles["Normal"]))
+    elements.append(
+        Paragraph(f"<b>Grade:</b> {student['grade']}    <b>Semester:</b> {student['semester']}", styles["Normal"]))
+    elements.append(Paragraph("<b>Closing Date:</b> 20th December 2025    <b>Opening Date:</b> 10th January 2026",
+                              styles["Normal"]))
+    elements.append(Spacer(1, 12))
 
-        if student_index + 1 < num_students:
-            return redirect(url_for('student_entry', student_index=student_index + 1))
-        else:
-            return redirect(url_for('preview_reports'))
+    # Table Header
+    table_data = [["Subject", "Class Score", "Exam Score", "Total", "Grade", "Subject Remarks"]]
 
-    return render_template('student_details.html', student_index=student_index, subjects=subjects,
-                           total_students=num_students)
+    # Add student scores to the table
+    for s in student['scores']:
+        grade = calculate_grade(s['total_score'])
+        table_data.append([s['subject'], s['class_score'], s['exam_score'], s['total_score'], grade, s['remark']])
 
+    # Create Table
+    table = Table(table_data, colWidths=[160, 70, 70, 70, 50, 140])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey)
+    ]))
+    elements.append(table)
+    elements.append(Spacer(1, 20))
 
-@app.route('/preview')
-def preview_reports():
-    students = sorted(session.get('students', []), key=lambda x: x['total_aggregate'], reverse=True)
-    for index, student in enumerate(students):
-        student['position'] = index + 1
-    session['students'] = students
-    session.modified = True
-    return render_template('preview.html', students=students)
+    # Summary Section
+    elements.append(Paragraph(f"<b>Total Aggregate Score:</b> {student['total_aggregate']}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Position in Class:</b> {student['position']}", styles["Normal"]))
+    elements.append(Paragraph(f"<b>Teacher's Remarks:</b> {student['remarks']}", styles["Normal"]))
+    elements.append(Spacer(1, 12))
+
+    # Signatures
+    elements.append(Paragraph("<b>Class Teacher's Signature:</b> ________________", styles["Normal"]))
+    elements.append(Paragraph("<b>Principal's Signature:</b> ________________", styles["Normal"]))
+    elements.append(Spacer(1, 12))
+
+    # Footer - Closing and Opening Dates
+    elements.append(Paragraph("<b>Closing Date:</b> 20th December 2025    <b>Opening Date:</b> 10th January 2026",
+                              styles["Normal"]))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=f"{student['name']}_Report.pdf",
+                     mimetype='application/pdf')
 
 
 if __name__ == '__main__':
