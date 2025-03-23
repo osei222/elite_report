@@ -20,13 +20,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-
 # Define Database Models
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
-
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +33,6 @@ class Student(db.Model):
     semester = db.Column(db.String(50), nullable=False)
     total_aggregate = db.Column(db.Float, nullable=False)
     remarks = db.Column(db.String(255), nullable=True)
-
 
 class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,7 +43,6 @@ class Score(db.Model):
     total_score = db.Column(db.Float, nullable=False)
     grade = db.Column(db.String(2), nullable=False)
     remark = db.Column(db.String(100), nullable=True)
-
 
 # Function to generate letter grades
 def calculate_grade(score):
@@ -61,12 +57,12 @@ def calculate_grade(score):
     else:
         return "E"
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/generate_pdf/<int:student_index>')
 def generate_pdf(student_index):
-    if 'teacher_id' not in session:
-        return redirect(url_for('login'))
-
     students = session.get('students', [])
     if student_index >= len(students):
         return "Student not found", 404
@@ -133,6 +129,6 @@ def generate_pdf(student_index):
     return send_file(buffer, as_attachment=True, download_name=f"{student['name']}_Report.pdf",
                      mimetype='application/pdf')
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=True)
