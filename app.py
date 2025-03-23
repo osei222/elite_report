@@ -9,8 +9,11 @@ import os
 
 app = Flask(__name__)
 
-# Database Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://school_reports_db_user:GAwhK1OzIt9kFUUB5uyDi6DZ4SGRYdmV@dpg-cvfkt78fnakc739pqkrg-a.oregon-postgres.render.com/school_reports_db")
+# Securely Fetch Database URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("⚠️ DATABASE_URL environment variable not set!")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -45,6 +48,7 @@ def index():
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
     try:
+        # Extract form data
         school_name = request.form['school_name']
         location = request.form['location']
         grade = request.form['grade']
@@ -107,6 +111,7 @@ def generate_pdf():
         for index, pupil in enumerate(pupils):
             pupil["position"] = index + 1
 
+        # Generate PDF
         buffer = BytesIO()
         pdf = SimpleDocTemplate(buffer, pagesize=A4)
         elements = []
