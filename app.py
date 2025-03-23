@@ -57,9 +57,35 @@ def calculate_grade(score):
     else:
         return "E"
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        # Process form data
+        school_name = request.form.get("school_name")
+        location = request.form.get("location")
+        address = request.form.get("address")
+        grade = request.form.get("grade")
+        semester = request.form.get("semester")
+        closing_date = request.form.get("closing_date")
+        opening_date = request.form.get("opening_date")
+        num_students = request.form.get("num_students")
+
+        # Store data in session
+        session["school_details"] = {
+            "school_name": school_name,
+            "location": location,
+            "address": address,
+            "grade": grade,
+            "semester": semester,
+            "closing_date": closing_date,
+            "opening_date": opening_date,
+            "num_students": int(num_students)
+        }
+
+        return redirect(url_for('enter_student', student_index=0))
+
     return render_template('index.html')
+
 
 @app.route('/generate_pdf/<int:student_index>')
 def generate_pdf(student_index):
