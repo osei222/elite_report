@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Preview Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h2>Preview Report</h2>
+
+    <div class="school-details">
+        <h3>School Information</h3>
+        <p><strong>School Name:</strong> {{ school_name }}</p>
+        <p><strong>Location:</strong> {{ location }}</p>
+        <p><strong>Grade:</strong> {{ grade }}</p>
+        <p><strong>Semester:</strong> {{ semester }}</p>
+        <p><strong>Number of Pupils:</strong> {{ num_pupils }}</p>
+    </div>
+
+    <div class="students-list">
+        <h3>Student Details</h3>
+        {% for pupil in pupils %}
+        <div class="student">
+            <h4>Pupil {{ loop.index }}: {{ pupil.name }}</h4>
+            <ul>
+                {% for subject in pupil.subjects %}
+                <li><strong>{{ subject.name }}</strong>: Class Score - {{ subject.class_score }}, Exam Score - {{ subject.exam_score }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="/generate_pdf" method="post">
+    <input type="hidden" name="school_name" value="{{ school_name }}">
+    <input type="hidden" name="location" value="{{ location }}">
+    <input type="hidden" name="grade" value="{{ grade }}">
+    <input type="hidden" name="semester" value="{{ semester }}">
+    <input type="hidden" name="num_pupils" value="{{ num_pupils }}">
+    <input type="hidden" name="vacating_date" value="{{ vacating_date }}">
+    <input type="hidden" name="reopening_date" value="{{ reopening_date }}">
+
+    {% for pupil in pupils %}
+    <input type="hidden" name="pupil_name_{{ loop.index0 }}" value="{{ pupil.name }}">
+    {% for subject in pupil.subjects %}
+    <input type="hidden" name="subject_{{ loop.index0 }}_{{ subject.name }}" value="{{ subject.name }}">
+    <input type="hidden" name="class_score_{{ loop.index0 }}_{{ subject.name }}" value="{{ subject.class_score }}">
+    <input type="hidden" name="exam_score_{{ loop.index0 }}_{{ subject.name }}" value="{{ subject.exam_score }}">
+    {% endfor %}
+    {% endfor %}
+
+    <button type="submit">Download PDF Report</button>
+</form>
+
+</div>
+</body>
+</html>

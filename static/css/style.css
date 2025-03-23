@@ -1,0 +1,151 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-transform:uppercase;
+}
+
+/* Logo Section */
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.elite {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.sub-text {
+    display: block;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Form Container */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+}
+
+/* Form Headings */
+h2 {
+    text-align: center;
+    color: #007bff;
+}
+
+/* Form Labels */
+label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+/* Input Fields & Select Dropdown */
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Buttons */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+button.previous {
+    background-color: #6c757d;
+}
+
+button.previous:hover {
+    background-color: #5a6268;
+}
+
+/* Pupil Form Section */
+.pupilForm {
+    display: none;
+}
+
+/* Show First Pupil Form */
+.pupilForm:first-of-type {
+    display: block;
+}
+
+/* Pupil Heading */
+h3 {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+/* Mobile Friendly */
+@media (max-width: 600px) {
+    form {
+        width: 100%;
+    }
+}
+.pupilForm {
+    display: none;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+button.previous {
+    background-color: #6c757d;
+}
+
+button.previous:hover {
+    background-color: #5a6268;
+}

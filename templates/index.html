@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Elite Consult Student Report Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-center">Elite Consult Student Report Generator</h2>
+    <form action="/generate_pdf" method="POST" enctype="multipart/form-data" class="shadow p-4 bg-white">
+
+        <!-- School Details -->
+        <div class="mb-3">
+            <label class="form-label">School Name</label>
+            <input type="text" name="school_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" name="location" class="form-control" required>
+        </div>
+
+        <!-- Logo Upload with Preview -->
+        <div class="mb-3">
+            <label class="form-label">Upload School Logo</label>
+            <input type="file" name="school_logo" id="logoInput" class="form-control" accept="image/*">
+            <img id="logoPreview" class="mt-2" src="" style="max-height: 100px; display: none;">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label">Grade</label>
+                <input type="text" name="grade" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Semester</label>
+                <input type="text" name="semester" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="form-label">Vacating Date</label>
+                <input type="date" name="vacating_date" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Reopening Date</label>
+                <input type="date" name="reopening_date" class="form-control" required>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Student Section -->
+        <h4>Students</h4>
+        <div id="students-container"></div>
+
+        <button type="button" class="btn btn-primary mt-3" id="add-student-btn">Add Student</button>
+
+        <hr>
+
+        <button type="submit" class="btn btn-success w-100">Generate Report PDF</button>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let studentCount = 0;
+
+        $("#add-student-btn").click(function () {
+            let studentHTML = `
+                <div class="student-entry mt-3 p-3 border rounded">
+                    <h5>Student ${studentCount + 1}</h5>
+                    <label class="form-label">Pupil Name</label>
+                    <input type="text" name="pupil_name_${studentCount}" class="form-control" required>
+
+                    <h6 class="mt-2">Subjects</h6>
+                    <div class="subject-container" id="subject-container-${studentCount}"></div>
+
+                    <button type="button" class="btn btn-secondary mt-2 add-subject-btn" data-student="${studentCount}">Add Subject</button>
+                    <button type="button" class="btn btn-danger mt-2 remove-student-btn">Remove Student</button>
+                </div>
+            `;
+            $("#students-container").append(studentHTML);
+            studentCount++;
+        });
+
+        $(document).on("click", ".add-subject-btn", function () {
+            let studentIndex = $(this).data("student");
+            let subjectHTML = `
+                <div class="subject-entry mt-2">
+                    <input type="text" name="subject_${studentIndex}[]" class="form-control mb-2" placeholder="Subject Name" required>
+                    <input type="number" name="class_score_${studentIndex}[]" class="form-control mb-2" placeholder="Class Score (0-50)" required>
+                    <input type="number" name="exam_score_${studentIndex}[]" class="form-control mb-2" placeholder="Exam Score (0-50)" required>
+                    <button type="button" class="btn btn-danger btn-sm remove-subject-btn">Remove</button>
+                </div>
+            `;
+            $(`#subject-container-${studentIndex}`).append(subjectHTML);
+        });
+
+        $(document).on("click", ".remove-subject-btn", function () {
+            $(this).closest(".subject-entry").remove();
+        });
+
+        $(document).on("click", ".remove-student-btn", function () {
+            $(this).closest(".student-entry").remove();
+        });
+
+        $("#logoInput").change(function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#logoPreview").attr("src", e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
