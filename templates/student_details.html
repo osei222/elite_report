@@ -1,140 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enter Student Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-    <h2>Enter Student Details</h2>
+<body class="bg-light">
 
-    <div class="school-details">
-        <h3>School Information</h3>
-        <p><strong>School Name:</strong> {{ school_name }}</p>
-        <p><strong>Location:</strong> {{ location }}</p>
-        <p><strong>Grade:</strong> {{ grade }}</p>
-        <p><strong>Semester:</strong> {{ semester }}</p>
-        <p><strong>Number of Pupils:</strong> {{ num_pupils }}</p>
-    </div>
-
-    <div id="studentContainer">
-        <form action="/generate_report" method="post">
-            <input type="hidden" name="school_name" value="{{ school_name }}">
-            <input type="hidden" name="location" value="{{ location }}">
-            <input type="hidden" name="grade" value="{{ grade }}">
-            <input type="hidden" name="semester" value="{{ semester }}">
-            <input type="hidden" name="num_pupils" value="{{ num_pupils }}">
-
-            <div id="studentsSection"></div>
-
-            <div class="navigation-buttons">
-                <button type="button" class="previous" onclick="prevPupil()">Previous</button>
-                <button type="button" class="next" onclick="nextPupil()">Next</button>
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-center">Enter Student Details</h2>
+        <h4 class="text-center">Student {{ student_index + 1 }} of {{ total_students }}</h4>
+        <form action="/student/{{ student_index }}" method="POST" class="shadow p-4 bg-white">
+            <div class="mb-3">
+                <label class="form-label">Pupil Name</label>
+                <input type="text" name="name" class="form-control" required>
             </div>
 
-            <button type="submit" id="submitButton" style="display: none;">Generate Report</button>
+            <h5>Subjects and Scores</h5>
+            <div id="subjects-container">
+                {% for subject in subjects %}
+                <div class="mb-3">
+                    <label class="form-label">{{ subject }}</label>
+                    <input type="hidden" name="subject[]" value="{{ subject }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="number" name="class_score[]" class="form-control score-input" placeholder="Class Score (0-50)" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="number" name="exam_score[]" class="form-control score-input" placeholder="Exam Score (0-50)" required>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                {% if student_index > 0 %}
+                <a href="/student/{{ student_index - 1 }}" class="btn btn-secondary">Previous</a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Next</button>
+            </div>
         </form>
     </div>
 </div>
 
 <script>
-    let currentPupilIndex = 0;
-    let pupils = [];
-    let numPupils = {{ num_pupils }};
-    let studentsSection = document.getElementById("studentsSection");
-
-    let subjectsByGrade = {
-        "Grade 1": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 2": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 3": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 4": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 5": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 6": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Religious and Moral Education", "History", "Computing", "OWOP", "Dictation"],
-        "Grade 7": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Social Studies", "Computing", "Career Technology", "Religious and Moral Education", "Dictation"],
-        "Grade 8": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Social Studies", "Computing", "Career Technology", "Religious and Moral Education", "Dictation"],
-        "Grade 9": ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language", "Creative Art", "Social Studies", "Computing", "Career Technology", "Religious and Moral Education", "Dictation"]
-    };
-
-    let selectedGrade = "{{ grade }}";
-
-    function createPupilForms() {
-        for (let i = 0; i < numPupils; i++) {
-            let div = document.createElement("div");
-            div.classList.add("pupilForm");
-            div.style.display = i === 0 ? "block" : "none";
-
-            div.innerHTML = `<h3>Pupil ${i + 1}</h3>
-                             <label>Name:</label>
-                             <input type="text" name="pupil_name_${i}" required><br>
-                             <label>Subjects:</label>
-                             <select name="subject_${i}" class="subjectSelect" onchange="addScoreFields(this, ${i})">
-                                <option value="">Select Subject</option>
-                             </select><br>
-                             <div id="scores_${i}"></div>`;
-
-            studentsSection.appendChild(div);
-            pupils.push(div);
+    document.addEventListener("input", function(event) {
+        if (event.target.classList.contains("score-input")) {
+            if (event.target.value > 50) event.target.value = 50;
+            if (event.target.value < 0) event.target.value = 0;
         }
-        updateSubjectDropdown();
-    }
-
-    function updateSubjectDropdown() {
-        let subjectSelects = document.querySelectorAll(".subjectSelect");
-        subjectSelects.forEach(select => {
-            select.innerHTML = '<option value="">Select Subject</option>';
-            if (subjectsByGrade[selectedGrade]) {
-                subjectsByGrade[selectedGrade].forEach(subject => {
-                    let option = document.createElement("option");
-                    option.value = subject;
-                    option.textContent = subject;
-                    select.appendChild(option);
-                });
-            }
-        });
-    }
-
-    function addScoreFields(selectElement, pupilIndex) {
-        let subject = selectElement.value;
-        let scoreDiv = document.getElementById(`scores_${pupilIndex}`);
-
-        if (subject) {
-            scoreDiv.innerHTML = `<label>${subject} Class Score:</label>
-                                  <input type="number" name="class_score_${pupilIndex}_${subject}" required>
-                                  <label>Exam Score:</label>
-                                  <input type="number" name="exam_score_${pupilIndex}_${subject}" required><br>`;
-        } else {
-            scoreDiv.innerHTML = "";
-        }
-    }
-
-    function nextPupil() {
-        if (currentPupilIndex < pupils.length - 1) {
-            pupils[currentPupilIndex].style.display = "none";
-            currentPupilIndex++;
-            pupils[currentPupilIndex].style.display = "block";
-        }
-        checkLastPupil();
-    }
-
-    function prevPupil() {
-        if (currentPupilIndex > 0) {
-            pupils[currentPupilIndex].style.display = "none";
-            currentPupilIndex--;
-            pupils[currentPupilIndex].style.display = "block";
-        }
-        checkLastPupil();
-    }
-
-    function checkLastPupil() {
-        let submitButton = document.getElementById("submitButton");
-        if (currentPupilIndex === pupils.length - 1) {
-            submitButton.style.display = "block";
-        } else {
-            submitButton.style.display = "none";
-        }
-    }
-
-    createPupilForms();
+    });
 </script>
+
 </body>
 </html>
