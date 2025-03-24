@@ -82,7 +82,7 @@ def index():
             "num_students": int(num_students)
         }
 
-        return redirect(url_for('enter_student', student_index=0))
+        return redirect(url_for('student', student_index=0))
 
     return render_template('index.html')
 
