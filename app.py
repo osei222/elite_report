@@ -82,10 +82,22 @@ def index():
             "num_students": int(num_students)
         }
 
-        return redirect(url_for('student_details', student_index=0))
+        return redirect(url_for('student', student_index=0))
 
     return render_template('index.html')
 
+@app.route('/student/<int:student_index>', methods=['GET', 'POST'])
+def student(student_index):
+    total_students = session.get("school_details", {}).get("num_students", 0)
+
+    subjects = ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
+                "Creative Art", "Religious and Moral Education", "History", "Computing",
+                "OWOP", "Dictation"] if session["school_details"]["grade"] == "Grade 1-6" else \
+               ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
+                "Creative Art", "Social Studies", "Computing", "Career Technology",
+                "Religious and Moral Education", "Dictation"]
+
+    return render_template('student_details.html', student_index=student_index, total_students=total_students, subjects=subjects)
 
 @app.route('/generate_pdf/<int:student_index>')
 def generate_pdf(student_index):
