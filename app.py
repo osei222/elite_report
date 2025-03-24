@@ -112,7 +112,8 @@ def student(student_index):
 @app.route('/preview')
 def preview():
     students = session.get('students', [])
-    return render_template('preview.html', students=students)
+    school_details = session.get('school_details', {})
+    return render_template('preview.html', students=students, school_details=school_details)
 
 
 if __name__ == '__main__':
