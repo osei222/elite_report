@@ -44,8 +44,10 @@ def index():
             "grade": grade,
             "num_students": int(num_students)
         }
-        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]
+
+        print("✅ Redirecting to student details page...")  # Debugging log
         return redirect(url_for('student', student_index=0))
+
     return render_template('index.html')
 
 @app.route('/student/<int:student_index>', methods=['GET', 'POST'])
