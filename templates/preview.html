@@ -3,44 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Report Preview</title>
+    <title>Report Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 900px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .table {
-            margin-top: 20px;
-        }
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="header">
-            <h2>{{ school_details.school_name }} - Student Report</h2>
-            <p><strong>Location:</strong> {{ school_details.location }}</p>
-            <p><strong>Semester:</strong> {{ school_details.semester }}</p>
-        </div>
+    <div class="container mt-5">
+        <h2 class="text-center">Student Report Preview</h2>
+        <p><strong>School Name:</strong> {{ school_details.school_name }}</p>
+        <p><strong>Location:</strong> {{ school_details.location }}</p>
+        <p><strong>Semester:</strong> {{ school_details.semester }}</p>
+        <p><strong>Closing Date:</strong> {{ school_details.closing_date }}</p>
+        <p><strong>Reopening Date:</strong> {{ school_details.opening_date }}</p>
+
+        <hr>
 
         {% for student in students %}
-        <div class="card mb-4">
+        <div class="card mb-3">
             <div class="card-body">
-                <h4 class="card-title">Student: {{ student.name }}</h4>
+                <h5 class="card-title">{{ student.name }}</h5>
+                <p><strong>Grade:</strong> {{ student.grade }}</p>
+                <p><strong>Total Aggregate:</strong> {{ student.total_aggregate }}</p>
+                <p><strong>Teacher's Remarks:</strong> {{ student.teacher_remarks }}</p>
+
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -65,14 +49,13 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <p><strong>Teacher's Remarks:</strong> {{ student.teacher_remarks }}</p>
             </div>
         </div>
         {% endfor %}
 
-        <div class="btn-container">
-            <a href="{{ url_for('generate_pdf') }}" class="btn btn-success">Download PDF Report</a>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">Go Back</a>
+        <div class="text-center">
+            <a href="{{ url_for('generate_pdf') }}" class="btn btn-success">Download PDF</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Start Over</a>
         </div>
     </div>
 

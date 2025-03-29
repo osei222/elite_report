@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
@@ -55,20 +55,26 @@ def index():
             "opening_date": request.form.get("opening_date"),
             "num_students": int(request.form.get("num_students"))
         }
-        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]  # Initialize students
+        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]
         return redirect(url_for('student', student_index=0))
     return render_template('index.html')
 
 
 @app.route('/student/<int:student_index>', methods=['GET', 'POST'])
 def student(student_index):
+    if "school_details" not in session:
+        return redirect(url_for('index'))  # Prevent direct access
+
     total_students = session.get("school_details", {}).get("num_students", 0)
-    subjects = ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
-                "Creative Art", "Religious and Moral Education", "History", "Computing",
-                "OWOP", "Dictation"] if session["school_details"]["grade"] == "Grade 1-6" else \
-        ["Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
-         "Creative Art", "Social Studies", "Computing", "Career Technology",
-         "Religious and Moral Education", "Dictation"]
+    subjects = [
+        "Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
+        "Creative Art", "Religious and Moral Education", "History", "Computing",
+        "OWOP", "Dictation"
+    ] if session["school_details"]["grade"] in ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6"] else [
+        "Integrated Science", "Mathematics", "English Language", "Ghanaian Language",
+        "Creative Art", "Social Studies", "Computing", "Career Technology",
+        "Religious and Moral Education", "Dictation"
+    ]
 
     if request.method == 'POST':
         name = request.form.get("name")
@@ -93,8 +99,6 @@ def student(student_index):
 
         session["students"][student_index] = {
             "name": name,
-            "grade": session["school_details"]["grade"],
-            "semester": session["school_details"]["semester"],
             "scores": scores,
             "total_aggregate": total_aggregate / len(subjects),
             "teacher_remarks": teacher_remarks
@@ -111,27 +115,25 @@ def student(student_index):
 
 @app.route('/preview')
 def preview():
-    students = session.get('students', [])
-    school_details = session.get('school_details', {})
-    return render_template('preview.html', students=students, school_details=school_details)
+    if "students" not in session:
+        return redirect(url_for('index'))
+    return render_template('preview.html', students=session["students"], school_details=session["school_details"])
 
 
 @app.route('/generate-pdf')
 def generate_pdf():
-    students = session.get('students', [])
-    school_details = session.get('school_details', {})
+    if "students" not in session:
+        return redirect(url_for('index'))
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     elements = []
     styles = getSampleStyleSheet()
 
-    # Add school name and details
-    elements.append(Paragraph(f"{school_details.get('school_name', 'School Name')} - Report", styles['Title']))
-    elements.append(Paragraph(f"Location: {school_details.get('location', '')}", styles['Normal']))
-    elements.append(Paragraph(f"Semester: {school_details.get('semester', '')}", styles['Normal']))
+    elements.append(
+        Paragraph(f"{session['school_details'].get('school_name', 'School Name')} - Report", styles['Title']))
     elements.append(Spacer(1, 12))
 
-    for student in students:
+    for student in session["students"]:
         elements.append(Paragraph(f"Student Name: {student['name']}", styles['Heading2']))
         data = [["Subject", "Class Score", "Exam Score", "Total", "Grade", "Remark"]]
         for score in student['scores']:
@@ -139,7 +141,7 @@ def generate_pdf():
                 [score['subject'], score['class_score'], score['exam_score'], score['total_score'], score['grade'],
                  score['remark']])
 
-        table = Table(data, colWidths=[100, 60, 60, 60, 50, 100])
+        table = Table(data)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
