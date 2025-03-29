@@ -3,88 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Consult Student Report Generator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Student Report Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <div class="container mt-5">
+        <h2>Welcome to the Student Report Generator</h2>
+        <p class="text-muted">Generate student performance reports quickly and easily.</p>
 
-<div class="container mt-5">
-    <h2 class="text-center text-primary">Elite Consult Student Report Generator</h2>
-    <form action="/" method="POST" enctype="multipart/form-data" class="shadow p-4 bg-white">
+        <form action="{{ url_for('setup') }}" method="POST">
+            <div class="mb-3">
+                <label for="school_name" class="form-label">School Name:</label>
+                <input type="text" class="form-control" name="school_name" required>
+            </div>
 
-        <!-- School Details -->
-        <div class="mb-3">
-            <label class="form-label">School Name</label>
-            <input type="text" name="school_name" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label for="location" class="form-label">Location:</label>
+                <input type="text" class="form-control" name="location" required>
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Location</label>
-            <input type="text" name="location" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label for="semester" class="form-label">Semester:</label>
+                <input type="text" class="form-control" name="semester" required>
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">School Address</label>
-            <input type="text" name="address" class="form-control" required>
-        </div>
-
-        <!-- Logo Upload with Preview -->
-        <div class="mb-3">
-            <label class="form-label">Upload School Logo</label>
-            <input type="file" name="school_logo" id="logoInput" class="form-control" accept="image/*">
-            <img id="logoPreview" class="mt-2" src="" style="max-height: 100px; display: none;">
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label class="form-label">Grade</label>
-                <select name="grade" class="form-select" required>
-                    <option value="Grade 1-6">Grade 1-6</option>
-                    <option value="Grade 7-9">Grade 7-9</option>
+            <div class="mb-3">
+                <label for="grade" class="form-label">Select Grade:</label>
+                <select class="form-select" name="grade" required>
+                    <option value="1">Grade 1</option>
+                    <option value="2">Grade 2</option>
+                    <option value="3">Grade 3</option>
+                    <option value="4">Grade 4</option>
+                    <option value="5">Grade 5</option>
+                    <option value="6">Grade 6</option>
+                    <option value="7">Grade 7</option>
+                    <option value="8">Grade 8</option>
+                    <option value="9">Grade 9</option>
                 </select>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Semester</label>
-                <input type="text" name="semester" class="form-control" required>
+
+            <div class="mb-3">
+                <label for="num_students" class="form-label">Number of Students:</label>
+                <input type="number" class="form-control" name="num_students" min="1" required>
             </div>
-        </div>
 
-        <!-- New Fields for Closing & Opening Dates -->
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <label class="form-label">Closing Date</label>
-                <input type="date" name="closing_date" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Opening Date</label>
-                <input type="date" name="opening_date" class="form-control" required>
-            </div>
-        </div>
+            <button type="submit" class="btn btn-primary">Proceed</button>
+        </form>
+    </div>
 
-        <div class="mb-3 mt-3">
-            <label class="form-label">Number of Students</label>
-            <input type="number" name="num_students" class="form-control" min="1" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">Next</button>
-    </form>
-</div>
-
-<script>
-    $(document).ready(function () {
-        $("#logoInput").change(function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    $("#logoPreview").attr("src", e.target.result).show();
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    });
-</script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,40 +1,81 @@
-<div class="container mt-5">
-    <h2 class="text-center">Student Reports Preview</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Report Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="header">
+            <h2>{{ school_details.school_name }} - Student Report</h2>
+            <p><strong>Location:</strong> {{ school_details.location }}</p>
+            <p><strong>Semester:</strong> {{ school_details.semester }}</p>
+        </div>
 
-    <!-- Display School Details -->
-    <div class="text-center mb-4">
-        <h4>{{ school_details.school_name }}</h4>
-        <p><strong>Location:</strong> {{ school_details.location }}</p>
-        <p><strong>Address:</strong> {{ school_details.address }}</p>
-        <p><strong>Semester:</strong> {{ school_details.semester }}</p>
+        {% for student in students %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Student: {{ student.name }}</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Class Score</th>
+                            <th>Exam Score</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                            <th>Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for score in student.scores %}
+                        <tr>
+                            <td>{{ score.subject }}</td>
+                            <td>{{ score.class_score }}</td>
+                            <td>{{ score.exam_score }}</td>
+                            <td>{{ score.total_score }}</td>
+                            <td>{{ score.grade }}</td>
+                            <td>{{ score.remark }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p><strong>Teacher's Remarks:</strong> {{ student.teacher_remarks }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="btn-container">
+            <a href="{{ url_for('generate_pdf') }}" class="btn btn-success">Download PDF Report</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Go Back</a>
+        </div>
     </div>
 
-    <table class="table table-bordered mt-4 text-center">
-        <thead class="table-dark">
-            <tr>
-                <th>Position</th>
-                <th>Pupil Name</th>
-                <th>Total Aggregate</th>
-                <th>Teacher's Remarks</th>
-                <th>View Report</th>
-                <th>Download Report</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in students %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ student.name }}</td>
-                <td>{{ student.total_aggregate }}</td>
-                <td>{{ student.teacher_remarks }}</td>
-                <td>
-                    <a href="/preview_individual/{{ loop.index0 }}" class="btn btn-info btn-sm">Preview</a>
-                </td>
-                <td>
-                    <a href="/generate_pdf/{{ loop.index0 }}" class="btn btn-success btn-sm">Download PDF</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

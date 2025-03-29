@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
@@ -116,6 +116,44 @@ def preview():
     return render_template('preview.html', students=students, school_details=school_details)
 
 
+@app.route('/generate-pdf')
+def generate_pdf():
+    students = session.get('students', [])
+    school_details = session.get('school_details', {})
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # Add school name and details
+    elements.append(Paragraph(f"{school_details.get('school_name', 'School Name')} - Report", styles['Title']))
+    elements.append(Paragraph(f"Location: {school_details.get('location', '')}", styles['Normal']))
+    elements.append(Paragraph(f"Semester: {school_details.get('semester', '')}", styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    for student in students:
+        elements.append(Paragraph(f"Student Name: {student['name']}", styles['Heading2']))
+        data = [["Subject", "Class Score", "Exam Score", "Total", "Grade", "Remark"]]
+        for score in student['scores']:
+            data.append(
+                [score['subject'], score['class_score'], score['exam_score'], score['total_score'], score['grade'],
+                 score['remark']])
+
+        table = Table(data, colWidths=[100, 60, 60, 60, 50, 100])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        elements.append(table)
+        elements.append(Spacer(1, 12))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="student_report.pdf", mimetype='application/pdf')
+
+
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
