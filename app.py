@@ -45,18 +45,20 @@ def calculate_grade(score):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        session["school_details"] = {
-            "school_name": request.form.get("school_name"),
-            "location": request.form.get("location"),
-            "address": request.form.get("address"),
-            "grade": request.form.get("grade"),
-            "semester": request.form.get("semester"),
-            "closing_date": request.form.get("closing_date"),
-            "opening_date": request.form.get("opening_date"),
-            "num_students": int(request.form.get("num_students"))
-        }
-        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]
-        return redirect(url_for('student', student_index=0))
+        try:
+            session["school_details"] = {
+                "school_name": request.form.get("school_name"),
+                "location": request.form.get("location"),
+                "closing_date": request.form.get("closing_date"),
+                "opening_date": request.form.get("opening_date"),
+                "grade": request.form.get("grade"),
+                "semester": request.form.get("semester"),
+                "num_students": int(request.form.get("num_students"))
+            }
+            session["students"] = [{} for _ in range(session["school_details"]["num_students"])]  # Initialize students
+            return redirect(url_for('student', student_index=0))
+        except Exception as e:
+            flash(f"Error: {str(e)}", "danger")
     return render_template('index.html')
 
 
