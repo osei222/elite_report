@@ -19,7 +19,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
@@ -27,7 +26,6 @@ class Student(db.Model):
     semester = db.Column(db.String(50), nullable=False)
     total_aggregate = db.Column(db.Float, nullable=False)
     remarks = db.Column(db.String(255), nullable=True)
-
 
 def calculate_grade(score):
     if score >= 80:
@@ -41,31 +39,27 @@ def calculate_grade(score):
     else:
         return "E"
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        try:
-            session["school_details"] = {
-                "school_name": request.form.get("school_name"),
-                "location": request.form.get("location"),
-                "closing_date": request.form.get("closing_date"),
-                "opening_date": request.form.get("opening_date"),
-                "grade": request.form.get("grade"),
-                "semester": request.form.get("semester"),
-                "num_students": int(request.form.get("num_students"))
-            }
-            session["students"] = [{} for _ in range(session["school_details"]["num_students"])]  # Initialize students
-            return redirect(url_for('student', student_index=0))
-        except Exception as e:
-            flash(f"Error: {str(e)}", "danger")
+        session["school_details"] = {
+            "school_name": request.form.get("school_name"),
+            "location": request.form.get("location"),
+            "semester": request.form.get("semester"),
+            "closing_date": request.form.get("closing_date"),
+            "opening_date": request.form.get("opening_date"),
+            "grade": request.form.get("grade"),
+            "num_students": int(request.form.get("num_students"))
+        }
+        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]
+        return redirect(url_for('student', student_index=0))
     return render_template('index.html')
-
 
 @app.route('/student/<int:student_index>', methods=['GET', 'POST'])
 def student(student_index):
     if "school_details" not in session:
-        return redirect(url_for('index'))  # Prevent direct access
+        flash("Please fill in the school details first.", "warning")
+        return redirect(url_for('index'))
 
     total_students = session.get("school_details", {}).get("num_students", 0)
     subjects = [
@@ -114,13 +108,11 @@ def student(student_index):
     return render_template('student_details.html', student_index=student_index, total_students=total_students,
                            subjects=subjects)
 
-
 @app.route('/preview')
 def preview():
     if "students" not in session:
         return redirect(url_for('index'))
     return render_template('preview.html', students=session["students"], school_details=session["school_details"])
-
 
 @app.route('/generate-pdf')
 def generate_pdf():
@@ -156,7 +148,6 @@ def generate_pdf():
     doc.build(elements)
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="student_report.pdf", mimetype='application/pdf')
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
