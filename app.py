@@ -38,7 +38,6 @@ def index():
             flash("All fields are required!", "danger")
             return redirect(url_for('index'))
 
-        # ✅ Fix: Ensure session["students"] exists
         session["school_details"] = {
             "school_name": school_name,
             "location": location,
@@ -48,9 +47,11 @@ def index():
             "grade": grade,
             "num_students": int(num_students)
         }
-        session["students"] = [{} for _ in range(int(num_students))]  # Initialize students
 
-        print(f"✅ Redirecting to /student/0")  # Debugging log
+        # ✅ Ensure students list is initialized
+        session["students"] = [{}] * int(num_students)
+
+        print("✅ Redirecting to student details page...")  # Debugging log
         return redirect(url_for('student', student_index=0))
 
     return render_template('index.html')
