@@ -5,8 +5,11 @@ import os
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
+# Ensure session works correctly
+app.config['SESSION_TYPE'] = 'filesystem'
+
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///students.db")  # Default to SQLite if no env variable
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///students.db")
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -35,6 +38,7 @@ def index():
             flash("All fields are required!", "danger")
             return redirect(url_for('index'))
 
+        # ✅ Fix: Ensure session["students"] exists
         session["school_details"] = {
             "school_name": school_name,
             "location": location,
@@ -44,8 +48,9 @@ def index():
             "grade": grade,
             "num_students": int(num_students)
         }
+        session["students"] = [{} for _ in range(int(num_students))]  # Initialize students
 
-        print("✅ Redirecting to student details page...")  # Debugging log
+        print(f"✅ Redirecting to /student/0")  # Debugging log
         return redirect(url_for('student', student_index=0))
 
     return render_template('index.html')
@@ -56,7 +61,7 @@ def student(student_index):
         flash("Please fill in the school details first.", "warning")
         return redirect(url_for('index'))
 
-    total_students = session.get("school_details", {}).get("num_students", 0)
+    total_students = session["school_details"]["num_students"]
 
     if student_index >= total_students:
         return redirect(url_for('preview'))
@@ -80,3 +85,6 @@ def preview():
     if "students" not in session:
         return redirect(url_for('index'))
     return render_template('preview.html', students=session["students"], school_details=session["school_details"])
+
+if __name__ == '__main__':
+    app.run(debug=True)
