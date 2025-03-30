@@ -62,6 +62,10 @@ def student(student_index):
         flash("Please fill in the school details first.", "warning")
         return redirect(url_for('index'))
 
+    # ✅ Ensure students session exists
+    if "students" not in session:
+        session["students"] = [{} for _ in range(session["school_details"]["num_students"])]
+
     total_students = session["school_details"]["num_students"]
 
     if student_index >= total_students:
@@ -80,12 +84,5 @@ def student(student_index):
             return redirect(url_for('preview'))
 
     return render_template('student_details.html', student_index=student_index, total_students=total_students)
-
-@app.route('/preview')
-def preview():
-    if "students" not in session:
-        return redirect(url_for('index'))
-    return render_template('preview.html', students=session["students"], school_details=session["school_details"])
-
 if __name__ == '__main__':
     app.run(debug=True)

@@ -25,59 +25,51 @@
         <p class="text-muted">Generate student performance reports quickly and easily.</p>
 
         <form action="{{ url_for('index') }}" method="POST">
-        <div class="mb-3">
-    <label for="school_name" class="form-label">School Name:</label>
-    <input type="text" class="form-control" name="school_name" id="school_name"
-           title="Enter the name of your school" placeholder="E.g., Sunshine Academy" required>
-</div>
+            <div class="mb-3">
+                <label for="school_name" class="form-label">School Name:</label>
+                <input type="text" class="form-control" name="school_name" placeholder="Enter School Name" title="Enter School Name" required>
+            </div>
 
-<div class="mb-3">
-    <label for="location" class="form-label">Location:</label>
-    <input type="text" class="form-control" name="location" id="location"
-           title="Enter the school's location" placeholder="E.g., Accra, Ghana" required>
-</div>
+            <div class="mb-3">
+                <label for="location" class="form-label">Location:</label>
+                <input type="text" class="form-control" name="location" placeholder="Enter Location" title="Enter Location" required>
+            </div>
 
-<div class="mb-3">
-    <label for="semester" class="form-label">Semester:</label>
-    <input type="text" class="form-control" name="semester" id="semester"
-           title="Enter the current semester" placeholder="E.g., First Semester" required>
-</div>
+            <div class="mb-3">
+                <label for="semester" class="form-label">Semester:</label>
+                <input type="text" class="form-control" name="semester" placeholder="Enter Semester" title="Enter Semester" required>
+            </div>
 
-<div class="mb-3">
-    <label for="closing_date" class="form-label">Closing Date:</label>
-    <input type="date" class="form-control" name="closing_date" id="closing_date"
-           title="Select the closing date of the semester" required>
-</div>
+            <div class="mb-3">
+                <label for="closing_date" class="form-label">Closing Date:</label>
+                <input type="date" class="form-control" name="closing_date" title="Select Closing Date" required>
+            </div>
 
-<div class="mb-3">
-    <label for="opening_date" class="form-label">Reopening Date:</label>
-    <input type="date" class="form-control" name="opening_date" id="opening_date"
-           title="Select the reopening date of the next semester" required>
-</div>
+            <div class="mb-3">
+                <label for="opening_date" class="form-label">Reopening Date:</label>
+                <input type="date" class="form-control" name="opening_date" title="Select Reopening Date" required>
+            </div>
 
-<div class="mb-3">
-    <label for="grade" class="form-label">Select Grade:</label>
-    <select class="form-select" name="grade" id="grade" title="Select the grade level" required>
-        <option value="" disabled selected>Select a grade</option>
-        <option value="1">Grade 1</option>
-        <option value="2">Grade 2</option>
-        <option value="3">Grade 3</option>
-        <option value="4">Grade 4</option>
-        <option value="5">Grade 5</option>
-        <option value="6">Grade 6</option>
-        <option value="7">Grade 7</option>
-        <option value="8">Grade 8</option>
-        <option value="9">Grade 9</option>
-    </select>
-</div>
+            <div class="mb-3">
+                <label for="grade" class="form-label">Select Grade:</label>
+                <select class="form-select" name="grade" title="Select Grade" required>
+                    <option value="" disabled selected>Select a Grade</option>
+                    <option value="1">Grade 1</option>
+                    <option value="2">Grade 2</option>
+                    <option value="3">Grade 3</option>
+                    <option value="4">Grade 4</option>
+                    <option value="5">Grade 5</option>
+                    <option value="6">Grade 6</option>
+                    <option value="7">Grade 7</option>
+                    <option value="8">Grade 8</option>
+                    <option value="9">Grade 9</option>
+                </select>
+            </div>
 
-<div class="mb-3">
-    <label for="num_students" class="form-label">Number of Students:</label>
-    <input type="number" class="form-control" name="num_students" id="num_students"
-           title="Enter the number of students in the class"
-           placeholder="E.g., 30" min="1" required>
-</div>
-
+            <div class="mb-3">
+                <label for="num_students" class="form-label">Number of Students:</label>
+                <input type="number" class="form-control" name="num_students" placeholder="Enter Number of Students" title="Enter Number of Students" min="1" required>
+            </div>
 
             <button type="submit" class="btn btn-primary">Proceed</button>
         </form>
