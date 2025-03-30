@@ -23,6 +23,7 @@ class Student(db.Model):
     total_aggregate = db.Column(db.Float, nullable=False)
     remarks = db.Column(db.String(255), nullable=True)
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -48,13 +49,14 @@ def index():
             "num_students": int(num_students)
         }
 
-        # ✅ Ensure students list is initialized
-        session["students"] = [{}] * int(num_students)
+        # ✅ Fix: Initialize students session
+        session["students"] = [{} for _ in range(int(num_students))]
 
         print("✅ Redirecting to student details page...")  # Debugging log
         return redirect(url_for('student', student_index=0))
 
     return render_template('index.html')
+
 
 @app.route('/student/<int:student_index>', methods=['GET', 'POST'])
 def student(student_index):
